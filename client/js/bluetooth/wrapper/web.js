@@ -95,6 +95,4 @@
     Bluetooth.prototype.write = function (delimiter, cb) {
         this.connection.write(delimiter, cb);
     }
-
-
 })();

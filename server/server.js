@@ -30,7 +30,11 @@ function connectClient(socket){
         console.log(data);
     });
 
-
+    setInterval(function () {
+        socket.emit('data', {
+            test: 'test'
+        });
+    }, 500);
 
     /*socket.on('disconnect', function(){
         console.log( socket.name + ' has disconnected from the chat.' + socket.id);
