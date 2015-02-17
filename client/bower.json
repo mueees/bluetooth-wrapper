@@ -1,0 +1,9 @@
+{
+  "name": "Bluetooth-wrapper",
+  "version": "0.0.1",
+  "devDependencies": {
+    "socket.io-client": "latest",
+    "angular": "latest"
+  },
+  "dependencies": {}
+}

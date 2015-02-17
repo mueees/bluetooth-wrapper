@@ -1,50 +1,40 @@
-var path = "./node_modules/bluetooth-serial-port/lib/device-inquiry.js";
+var app = require('http').createServer(handler)
+var io = require('socket.io')(app);
+var fs = require('fs');
 
-(function() {
-    "use strict";
+var static = require('node-static');
+var fileServer = new static.Server('../client');
 
-    var util = require('util');
-    var DeviceINQ = require("./node_modules/bluetooth-serial-port/lib/device-inquiry.js").DeviceINQ;
-    var BluetoothSerialPort = require("./node_modules/bluetooth-serial-port/lib/bluetooth-serial-port.js").BluetoothSerialPort;
-    var serial = new BluetoothSerialPort();
+function handler(request, response) {
+    request.addListener('end', function () {
+        fileServer.serve(request, response);
+    }).resume();
+}
 
-    serial.findSerialPortChannel("00:12:09:11:01:52", function(channel) {
-        console.log('Found RFCOMM channel for serial port on ' + channel);
+io.on('connection', connectClient);
 
-        console.log('Attempting to connect...');
+function connectClient(socket){
+    socket.emit('data', {hello: 'world'});
 
-        serial.connect("00:12:09:11:01:52", channel, function() {
-            console.log('Connected. Sending data...');
-            var buf = new Buffer('10011010101s');
-            console.log('Size of buf = ' + buf.length);
-
-            serial.on('data', function(buffer) {
-                console.log('Size of data buf = ' + buffer.length);
-                console.log(buffer.toString('utf-8'));
-            });
-
-            serial.write(buf, function(err, count) {
-                if (err) {
-                    console.log('Error received: ' + err);
-                } else {
-                    console.log('Bytes writen is: ' + count);
-                }
-
-                setTimeout(function() {
-                    serial.write(buf, function (err, count) {
-                        if (err) {
-                            console.log('Error received: ' + err);
-                        } else {
-                            console.log('Bytes writen is: ' + count);
-                        }
-
-                        setTimeout(function() {
-                            serial.close();
-                            console.log('Closed and ready');
-                        }, 5000);
-                    });
-                }, 5000);
-            });
+    socket.on('request', function (data) {
+        socket.emit('response', {
+            id: data.id,
+            status: 200,
+            data: {
+                text: "Ping pong"
+            }
         });
     });
-})();
+
+    socket.on('data', function (data) {
+        console.log(data);
+    });
+
+
+
+    /*socket.on('disconnect', function(){
+        console.log( socket.name + ' has disconnected from the chat.' + socket.id);
+    });*/
+}
+
+app.listen(3000);
