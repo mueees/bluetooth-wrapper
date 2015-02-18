@@ -16,7 +16,7 @@
 
     var getId = _getId();
 
-    function Connection(success){
+    function Connection(success, bluetoothDisconnected){
         var _this = this;
 
         this.req = {};
@@ -43,6 +43,10 @@
             }
 
             delete _this.req[response.id];
+        });
+
+        this.socket.on('bluetooth:disconnect', function () {
+            bluetoothDisconnected();
         });
 
         this.request = function (url, options) {
@@ -77,6 +81,8 @@
         var _this = this;
         this.connection = new Connection(function () {
             _this.initFn();
+        }, function () {
+            if(_this.connectErrorCb) _this.connectErrorCb();
         });
     };
 

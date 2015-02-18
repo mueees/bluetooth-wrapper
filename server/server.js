@@ -43,30 +43,39 @@ function connectClient(socket){
                         }
                     });
                 }
+                if(serial) serial.close();
                 serial = new BluetoothSerialPort();
                 serial.findSerialPortChannel(options.data.address, function (channel) {
                     serial.connect(options.data.address, channel, function () {
                         sendResponse({
-                            id: options.id
+                            id: options.id,
+                            status: 200
                         });
 
-                        socket.on('data', function (data) {
-                            serial.write(new Buffer(data+'', 'utf-8'), function(err, count) {
-                                if (err) {
-                                    console.log('Error received: ' + err);
-                                } else {
-                                    console.log('Bytes writen is: ' + count);
-                                }
-                            });
+                        serial.on('data', function (buffer) {
+                            sendData(buffer.toString('utf-8'));
                         });
 
                         serial.on('closed', function () {
-                            sendData();
+                            socket.emit('bluetooth:disconnect');
                         });
                     });
                 });
                 break;
         }
+    });
+
+    socket.on('data', function (data) {
+        if(!serial) return false;
+
+        serial.write(new Buffer(data+'', 'utf-8'), function(err, count) {
+            if (err) {
+                console.log('Error received: ' + err);
+            } else {
+                console.log('Bytes writen is: ' + count);
+            }
+        });
+
     });
 
     socket.on('disconnect', function () {
@@ -82,13 +91,9 @@ function connectClient(socket){
         });
     }
 
-    function sendData(){
-
+    function sendData(data){
+        socket.emit('data', data);
     }
-
-    /*socket.on('disconnect', function(){
-     console.log( socket.name + ' has disconnected from the chat.' + socket.id);
-     });*/
 }
 
 app.listen(3000);
