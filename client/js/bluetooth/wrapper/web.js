@@ -81,12 +81,20 @@
     };
 
     Bluetooth.prototype.connect = function (address, success, error) {
+        var _this = this;
+        this.connectSuccessCb = success;
+        this.connectErrorCb = error;
+
         this.connection.request('connect', {
             data: {
                 address: address
             },
-            success: success,
-            error: error
+            success: function (data) {
+                _this.connectSuccessCb(data);
+            },
+            error: function (data) {
+                _this.connectErrorCb(data);
+            }
         });
     };
 

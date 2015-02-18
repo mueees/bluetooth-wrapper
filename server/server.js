@@ -19,19 +19,29 @@ io.on('connection', connectClient);
 function connectClient(socket){
     var serial;
 
-    socket.emit('data', {hello: 'world'});
-
     socket.on('request', function (options) {
         if(!options.id) return false;
 
         if(!options.url) {
-            return sendError(options.id, 'Url request should exist');
+            return sendResponse({
+                id: options.id,
+                status: 400,
+                data: {
+                    message: 'Url request should exist'
+                }
+            });
         }
 
         switch (options.url){
             case 'connect':
                 if(!options.data.address){
-                    return sendError(options.id, "Doesn't have address");
+                    return sendResponse({
+                        id: options.id,
+                        status: 400,
+                        data:{
+                            message: "Doesn't have address"
+                        }
+                    });
                 }
                 serial = new BluetoothSerialPort();
                 serial.findSerialPortChannel(options.data.address, function (channel) {
@@ -51,7 +61,7 @@ function connectClient(socket){
                         });
 
                         serial.on('closed', function () {
-                            console.log("Bluetooth disconected");
+                            sendData();
                         });
                     });
                 });
@@ -64,16 +74,16 @@ function connectClient(socket){
         serial = null;
     });
 
-    function sendError(idRequest, message) {
-
-    }
-
     function sendResponse(options){
         socket.emit('response', {
             id: options.id,
             status: options.status || 200,
             data: options.data || {}
         });
+    }
+
+    function sendData(){
+
     }
 
     /*socket.on('disconnect', function(){
