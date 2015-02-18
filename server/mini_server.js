@@ -4,7 +4,6 @@ var path = "./node_modules/bluetooth-serial-port/lib/device-inquiry.js";
     "use strict";
 
     var util = require('util');
-    var DeviceINQ = require("./node_modules/bluetooth-serial-port/lib/device-inquiry.js").DeviceINQ;
     var BluetoothSerialPort = require("./node_modules/bluetooth-serial-port/lib/bluetooth-serial-port.js").BluetoothSerialPort;
     var serial = new BluetoothSerialPort();
 

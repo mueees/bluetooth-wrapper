@@ -13,6 +13,7 @@
             return i;
         };
     }
+
     var getId = _getId();
 
     function Connection(success){
@@ -55,6 +56,7 @@
             };
 
             this.socket.emit('request', {
+                url: url,
                 data: data,
                 id: id
             });
@@ -79,7 +81,7 @@
     };
 
     Bluetooth.prototype.connect = function (address, success, error) {
-        this.connection.request('/connect', {
+        this.connection.request('connect', {
             data: {
                 address: address
             },
